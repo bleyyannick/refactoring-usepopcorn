@@ -10,6 +10,8 @@ import { Movie } from "./Movie";
 import { Summary } from "./Summary";
 import { BannerWatchedMovies } from "./BannerWatchedMovies";
 import { WatchedMovie } from "./WatchedMovie";
+import { StarRating } from "./StarRating";
+
 
 const tempMovieData = [
   {
@@ -66,7 +68,6 @@ const App = () =>  {
   const [watched, setWatched] = useState(tempWatchedData);
   const [isBoxListOpen, setIsBoxListOpen] = useState(true);
   const [isWatchedMoviestOpen, setIsWatchedMoviesOpen] = useState(true);
-  
 
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
@@ -79,30 +80,30 @@ const App = () =>  {
         <SearchMovies />
         <CountMovies numberMovies={movies.length} />
       </Navbar>
-
       <main className="main">
         <Box>
           <Button onClick={()=> setIsBoxListOpen((prevIsOpen) => !prevIsOpen)} isOpen={isBoxListOpen} />
-          {isBoxListOpen && <MoviesList>{movies?.map(movie => <Movie key={movie.imdbID} movie={movie}  />)}</MoviesList>}
+          {isBoxListOpen && <MoviesList>{movies?.map(movie => <Movie key={movie.imdbID} movie={movie}/>)}</MoviesList>}
         </Box>
         <Box>
           <Button onClick={()=> setIsWatchedMoviesOpen((prevIsOpen) => !prevIsOpen)} isOpen={isWatchedMoviestOpen} />
-            {isWatchedMoviestOpen && (
+            {isWatchedMoviestOpen && 
               <>
               <Summary>
                 <h2>Movies you watched</h2>
                 <BannerWatchedMovies 
-                   numberWatchedMovies={watched.length}
+                  numberWatchedMovies={watched.length}
                   avgImdbRating={avgImdbRating}
-                   avgRuntime={avgRuntime}
+                  avgRuntime={avgRuntime}
                   avgUserRating={avgUserRating} />  
                </Summary>
                <MoviesList>
-                {watched.map(watchedMovie => <WatchedMovie key={watchedMovie.imdbID} movie={watchedMovie} />)}
+                {watched.map(watchedMovie => <WatchedMovie key={watchedMovie.imdbID} movie={watchedMovie}/>)}
                </MoviesList>
-            </>
-          )}
+            </>}
+            <StarRating maxRating={5}/>
         </Box>
+        
       </main>
     </>
   );
