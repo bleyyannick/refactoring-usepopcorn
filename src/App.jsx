@@ -11,6 +11,7 @@ import { Summary } from "./Summary";
 import { BannerWatchedMovies } from "./BannerWatchedMovies";
 import { WatchedMovie } from "./WatchedMovie";
 import { StarRating } from "./StarRating";
+import { Test } from "./Test";
 
 
 const tempMovieData = [
@@ -101,7 +102,9 @@ const App = () =>  {
                 {watched.map(watchedMovie => <WatchedMovie key={watchedMovie.imdbID} movie={watchedMovie}/>)}
                </MoviesList>
             </>}
-            <StarRating maxRating={5}/>
+            <StarRating maxRating={10} defaultRating={0} messages={["Terrible", "Bad", "Normal","Good","Awesome movie"]}/>
+            <StarRating size={10} color="maroon"/>
+            <Test />
         </Box>
         
       </main>
