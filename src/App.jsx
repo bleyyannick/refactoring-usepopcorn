@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import { UseLogo } from "./UseLogo";
 import { SearchMovies } from "./SearchMovies";
@@ -12,79 +12,66 @@ import { BannerWatchedMovies } from "./BannerWatchedMovies";
 import { WatchedMovie } from "./WatchedMovie";
 import { StarRating } from "./StarRating";
 import { Test } from "./Test";
+import { ErrorMessage } from "./ErrorMessage";
+import { Loading } from "./Loading";
 
 
-const tempMovieData = [
-  {
-    imdbID: "tt1375666",
-    Title: "Inception",
-    Year: "2010",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
-  },
-  {
-    imdbID: "tt0133093",
-    Title: "The Matrix",
-    Year: "1999",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
-  },
-  {
-    imdbID: "tt6751668",
-    Title: "Parasite",
-    Year: "2019",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWE0ZDYtZTI3MjcwN2Q5NTVkXkEyXkFqcGdeQXVyODk4OTc3MTY@._V1_SX300.jpg",
-  },
-];
-
-const tempWatchedData = [
-  {
-    imdbID: "tt1375666",
-    Title: "Inception",
-    Year: "2010",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
-    runtime: 148,
-    imdbRating: 8.8,
-    userRating: 10,
-  },
-  {
-    imdbID: "tt0088763",
-    Title: "Back to the Future",
-    Year: "1985",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BZmU0M2Y1OGUtZjIxNi00ZjBkLTg1MjgtOWIyNThiZWIwYjRiXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
-    runtime: 116,
-    imdbRating: 8.5,
-    userRating: 9,
-  },
-];
 
 const average = arr => arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 const App = () =>  {
   
-  const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
-  const [isBoxListOpen, setIsBoxListOpen] = useState(true);
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
+  const [query, setQuery] = useState("");
+
   const [isWatchedMoviestOpen, setIsWatchedMoviesOpen] = useState(true);
+  const [isBoxListOpen, setIsBoxListOpen] = useState(true);
+
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
   const avgRuntime = average(watched.map((movie) => movie.runtime));
 
+  const KEY = "67994b0d";
+
+  const handleQueryMovie = (inputValue) => setQuery(inputValue); 
+
+  useEffect( () => {
+    const fetchMovies = async () => {
+      try {
+        setIsLoading(true)
+        const response =  await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`); 
+        if(!response.ok) throw new Error("Something went wrong with fetching movies");
+        const data = await response.json(); 
+        //the API does not return us any movie
+        if(data.Response === "False") throw new Error("No movies found");
+        setMovies(data.Search);
+       } catch (error) {
+        setError(error.message); 
+        }
+        finally{
+          setIsLoading(false)
+        }
+      };
+      fetchMovies(); 
+  },[query])
+
   return (
     <>
       <Navbar>
         <UseLogo />
-        <SearchMovies />
+        <SearchMovies query={query} onHandleQuery={handleQueryMovie}/>
         <CountMovies numberMovies={movies.length} />
       </Navbar>
       <main className="main">
         <Box>
           <Button onClick={()=> setIsBoxListOpen((prevIsOpen) => !prevIsOpen)} isOpen={isBoxListOpen} />
-          {isBoxListOpen && <MoviesList>{movies?.map(movie => <Movie key={movie.imdbID} movie={movie}/>)}</MoviesList>}
+          {!!error && !isLoading && isBoxListOpen && <MoviesList>{movies?.map(movie => <Movie key={movie.imdbID} movie={movie}/>)}</MoviesList>}
+          {isLoading && <Loading />}
+          {error && <ErrorMessage message={error} />} 
         </Box>
         <Box>
           <Button onClick={()=> setIsWatchedMoviesOpen((prevIsOpen) => !prevIsOpen)} isOpen={isWatchedMoviestOpen} />
