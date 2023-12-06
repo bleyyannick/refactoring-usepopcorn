@@ -3,7 +3,6 @@
 
 
 export const SearchMovies = ({query, onHandleQuery}) => {
-    console.log(query)
     return ( <input
                 className="search"
                 type="text"

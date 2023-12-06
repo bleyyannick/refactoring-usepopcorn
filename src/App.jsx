@@ -29,7 +29,7 @@ const App = () =>  {
   const [isBoxListOpen, setIsBoxListOpen] = useState(true);
 
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [error, setError] = useState(null)
 
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
@@ -42,15 +42,15 @@ const App = () =>  {
   useEffect( () => {
     const fetchMovies = async () => {
       try {
-        setIsLoading(true)
+        setIsLoading(true);
+        setError('');
         const response =  await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`); 
         if(!response.ok) throw new Error("Something went wrong with fetching movies");
         const data = await response.json(); 
-        //the API does not return us any movie
         if(data.Response === "False") throw new Error("No movies found");
         setMovies(data.Search);
-       } catch (error) {
-        setError(error.message); 
+       } catch (err) {
+        setError(err.message); 
         }
         finally{
           setIsLoading(false)
@@ -69,9 +69,10 @@ const App = () =>  {
       <main className="main">
         <Box>
           <Button onClick={()=> setIsBoxListOpen((prevIsOpen) => !prevIsOpen)} isOpen={isBoxListOpen} />
-          {!!error && !isLoading && isBoxListOpen && <MoviesList>{movies?.map(movie => <Movie key={movie.imdbID} movie={movie}/>)}</MoviesList>}
+          {!isLoading && !error && isBoxListOpen && <MoviesList>{movies?.map(movie => <Movie key={movie.imdbID} movie={movie}/>)}</MoviesList>}
+          {error && <ErrorMessage message={error} /> }
           {isLoading && <Loading />}
-          {error && <ErrorMessage message={error} />} 
+          
         </Box>
         <Box>
           <Button onClick={()=> setIsWatchedMoviesOpen((prevIsOpen) => !prevIsOpen)} isOpen={isWatchedMoviestOpen} />
