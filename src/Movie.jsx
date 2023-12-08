@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
-export const Movie = ({movie}) => {
+export const Movie = ({movie, onHandleSelectedMovie}) => {
     return (
-        <li key={movie.imdbID}>
+        <li onClick={() => onHandleSelectedMovie(movie.imdbID)}>
                   <img src={movie.Poster} alt={`${movie.Title} poster`} />
                   <h3>{movie.Title}</h3>
                   <div>

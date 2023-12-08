@@ -11,9 +11,9 @@ import { Summary } from "./Summary";
 import { BannerWatchedMovies } from "./BannerWatchedMovies";
 import { WatchedMovie } from "./WatchedMovie";
 import { StarRating } from "./StarRating";
-import { Test } from "./Test";
 import { ErrorMessage } from "./ErrorMessage";
 import { Loading } from "./Loading";
+import { MovieDetails } from "./MovieDetails";
 
 
 
@@ -24,6 +24,7 @@ const App = () =>  {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState(null); 
 
   const [isWatchedMoviestOpen, setIsWatchedMoviesOpen] = useState(true);
   const [isBoxListOpen, setIsBoxListOpen] = useState(true);
@@ -38,6 +39,10 @@ const App = () =>  {
   const KEY = "67994b0d";
 
   const handleQueryMovie = (inputValue) => setQuery(inputValue); 
+  const handleAddWatchedMovie = (watchedMovie) => {
+    setWatched(prevWatchedMovie => [...prevWatchedMovie, watchedMovie]); 
+  }
+  const handleSelectedId = (id) => setSelectedId(id)
 
   useEffect( () => {
     const fetchMovies = async () => {
@@ -69,15 +74,24 @@ const App = () =>  {
       <main className="main">
         <Box>
           <Button onClick={()=> setIsBoxListOpen((prevIsOpen) => !prevIsOpen)} isOpen={isBoxListOpen} />
-          {!isLoading && !error && isBoxListOpen && <MoviesList>{movies?.map(movie => <Movie key={movie.imdbID} movie={movie}/>)}</MoviesList>}
+          {!isLoading &&
+           !error && 
+           isBoxListOpen && 
+           <MoviesList>
+            {movies?.map(movie => 
+               <Movie 
+                 onHandleSelectedMovie={handleSelectedId}  
+                 key={movie.imdbID} 
+                 movie={movie}/>
+            )}
+           </MoviesList>}
           {error && <ErrorMessage message={error} /> }
           {isLoading && <Loading />}
-          
         </Box>
         <Box>
           <Button onClick={()=> setIsWatchedMoviesOpen((prevIsOpen) => !prevIsOpen)} isOpen={isWatchedMoviestOpen} />
-            {isWatchedMoviestOpen && 
-              <>
+          {isWatchedMoviestOpen && 
+            <>
               <Summary>
                 <h2>Movies you watched</h2>
                 <BannerWatchedMovies 
@@ -85,14 +99,17 @@ const App = () =>  {
                   avgImdbRating={avgImdbRating}
                   avgRuntime={avgRuntime}
                   avgUserRating={avgUserRating} />  
-               </Summary>
-               <MoviesList>
-                {watched.map(watchedMovie => <WatchedMovie key={watchedMovie.imdbID} movie={watchedMovie}/>)}
-               </MoviesList>
+              </Summary>
+              <MoviesList>
+              {selectedId ? (
+                <MovieDetails id={selectedId} onHandleAddWatchedMovie={handleAddWatchedMovie}/>) :
+                  watched.map(watchedMovie => 
+                      <WatchedMovie 
+                      key={watchedMovie.imdbID} 
+                      movie={watchedMovie}/>)}
+              </MoviesList>
             </>}
-            <StarRating maxRating={10} defaultRating={0} messages={["Terrible", "Bad", "Normal","Good","Awesome movie"]}/>
-            <StarRating size={10} color="maroon"/>
-            <Test />
+          <StarRating maxRating={6} size={10} defaultRating={7} messages={["Terrible", "Bad", "Normal","Good","Awesome movie", "Wonderful movie"]}/>
         </Box>
         
       </main>
