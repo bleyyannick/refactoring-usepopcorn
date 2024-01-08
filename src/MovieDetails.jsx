@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react"
 
-export const MovieDetails = ({id}, onHandleAddWatchedMovie) => {
+export const MovieDetails = ({id, onHandleAddWatchedMovie}) => {
     const KEY = "67994b0d";
 
     const [movie, setMovie] = useState({}); 
