@@ -10,7 +10,6 @@ import { Movie } from "./Movie";
 import { Summary } from "./Summary";
 import { BannerWatchedMovies } from "./BannerWatchedMovies";
 import { WatchedMovie } from "./WatchedMovie";
-import { StarRating } from "./StarRating";
 import { ErrorMessage } from "./ErrorMessage";
 import { Loading } from "./Loading";
 import { MovieDetails } from "./MovieDetails";
@@ -38,11 +37,14 @@ const App = () =>  {
 
   const KEY = "67994b0d";
 
-  const handleQueryMovie = (inputValue) => setQuery(inputValue); 
-  const handleAddWatchedMovie = (watchedMovie) => {
-    setWatched(prevWatchedMovie => [...prevWatchedMovie, watchedMovie]); 
-  }
-  const handleSelectedId = (id) => setSelectedId(id)
+  const handleQueryMovie = inputValue => setQuery(inputValue);
+  const handleCloseMovie =  () => setSelectedId(null); 
+  const handleAddWatchedMovie = watchedMovie => setWatched(prevWatchedMovie => [...prevWatchedMovie, watchedMovie]); 
+    
+  const handleSelectedId = id => setSelectedId(id)
+  const handleDeleteWatchedMovie = id => setWatched(prevWatched => [...prevWatched].filter(movie => movie.imdbID !== id))
+  
+
 
   useEffect( () => {
     const fetchMovies = async () => {
@@ -62,7 +64,7 @@ const App = () =>  {
         }
       };
       fetchMovies(); 
-  },[query])
+  },[query]);
 
   return (
     <>
@@ -89,7 +91,7 @@ const App = () =>  {
           {isLoading && <Loading />}
         </Box>
         <Box>
-          <Button onClick={()=> setIsWatchedMoviesOpen((prevIsOpen) => !prevIsOpen)} isOpen={isWatchedMoviestOpen} />
+          <Button onClick={()=> setIsWatchedMoviesOpen(prevIsOpen => !prevIsOpen)} isOpen={isWatchedMoviestOpen} />
           {isWatchedMoviestOpen && 
             <>
               <Summary>
@@ -102,14 +104,18 @@ const App = () =>  {
               </Summary>
               <MoviesList>
               {selectedId ? (
-                <MovieDetails id={selectedId} onHandleAddWatchedMovie={handleAddWatchedMovie}/>) :
+                <MovieDetails 
+                    id={selectedId} 
+                    watchedMovies={watched}
+                    onHandleAddWatchedMovie={handleAddWatchedMovie} 
+                    onCloseMovie={handleCloseMovie}/>) :
                   watched.map(watchedMovie => 
                       <WatchedMovie 
                       key={watchedMovie.imdbID} 
-                      movie={watchedMovie}/>)}
+                      movie={watchedMovie}
+                      onDeleteWatchedMovie={handleDeleteWatchedMovie}/>)}
               </MoviesList>
             </>}
-          <StarRating maxRating={6} size={10} defaultRating={7} messages={["Terrible", "Bad", "Normal","Good","Awesome movie", "Wonderful movie"]}/>
         </Box>
         
       </main>

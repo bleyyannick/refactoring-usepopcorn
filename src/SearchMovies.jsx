@@ -8,7 +8,7 @@ export const SearchMovies = ({query, onHandleQuery}) => {
                 type="text"
                 placeholder="Search movies..."
                 value={query}
-                onChange={(e) => onHandleQuery(e.target.value)}/>
+                onChange={e => onHandleQuery(e.target.value)}/>
    )
 }; 
 
